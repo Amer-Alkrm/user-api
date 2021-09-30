@@ -19,13 +19,13 @@ class UserDataRequest(BaseModel):
 
     @validator('degree')
     def check_degree(cls, value: int) -> int:
-        if value not in [e.value for e in State]:
+        if value not in [e.value for e in Degree]:
             raise ValueError(f'Degree must one of {all_enum_to_str(Degree)}')
         return value
 
     @validator('gender')
     def check_gender(cls, value: int) -> int:
-        if value not in [e.value for e in State]:
+        if value not in [e.value for e in Gender]:
             raise ValueError(f'Gender must one of {all_enum_to_str(Gender)}')
         return value
 
@@ -38,7 +38,7 @@ class AddressDataRequest(BaseModel):
     apartment_number: int
 
     @validator('state')
-    def state_must_be_valid(cls, value: int) -> int:
+    def check_state(cls, value: int) -> int:
         if value not in [e.value for e in State]:
             raise ValueError(f'State must one of {all_enum_to_str(State)}')
         return value
