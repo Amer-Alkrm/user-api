@@ -1,0 +1,45 @@
+version: "2.4"
+
+services:
+  user-api-base:
+    build:
+      context: .
+    container_name: user-api-base
+    volumes:
+      - .:/app
+    ports:
+      - "80"
+    environment:
+      - VIRTUAL_HOST=userapi.docker
+      # Postgres connectivity
+      - DB_USER_NAME=users
+      - DB_PASSWORD=password
+      - DB_HOST=users-postgres
+      - DB_PORT=5432
+      - DB_NAME=users
+    command: ["echo", "I only exist to be extended so I'll just exit, thanks"]
+
+  user-api-service:
+    extends: user-api-base
+    container_name: userapi
+    depends_on:
+      - users-postgres
+    command:  /bin/sh -c "bin/boot.sh"
+
+  users-postgres:
+    container_name: users-postgres
+    image: postgres:12.5
+    environment:
+      VIRTUAL_HOST: users-postgres.docker
+      POSTGRES_DB: users
+      POSTGRES_USER: users
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+
+  user-api-test:
+    extends: user-api-base
+    container_name: user-api-pytest
+    depends_on:
+      - users-postgres
+    command:  /bin/sh -c "bin/unit_test.sh"
