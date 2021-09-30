@@ -64,10 +64,6 @@ class AddressResponseDoc(BaseModel):
         'Address ID', example="a0e25ba5-74f8-4982-8151-89c01cfcf099")
     address: str = Field('Address', example="Jordan/Az'Zarqa",
                          description='The name of the Address')
-    created_at: UUID = Field(
-        'Created At', example="2021-09-19T12:17:32.655357")
-    updated_at: UUID = Field(
-        'Updated At', example="2021-09-19T12:17:32.655357")
     street: str = Field('Street', example='Al-Quds',
                         description='The name of the Street.')
     state: int = Field('State', example='5',
@@ -76,3 +72,7 @@ class AddressResponseDoc(BaseModel):
                           description='Zipcode of the address, it must not exceed 5 characters.')
     apartment_number: str = Field('Apartment Number', example='12',
                                   description='The number of the apartment.')
+    created_at: UUID = Field(
+        'Created At', example="2021-09-19T12:17:32.655357")
+    updated_at: UUID = Field(
+        'Updated At', example="2021-09-19T12:17:32.655357")
