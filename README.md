@@ -2,13 +2,14 @@
 
 This is a FastAPI Project that interacts with two tables(Users, Addresses) in the database.
 # This Project is built using Python. It uses the following libraries and frameworks:
-1) FastAPI  
-2) SQLAlchemy 
-3) Postgresql 
-4) Alembic 
-5) Pytest 
-6) Docker, Dotdocker and Docker Compose
-
+<ol>
+<li>FastAPI  </li>
+<li>SQLAlchemy </li>
+<li>Postgresql </li>
+<li>Alembic </li>
+<li>Pytest </li>
+<li>Docker, Dotdocker and Docker Compose</li>
+</ol>
 
 You can do the following actions to the table:
 
