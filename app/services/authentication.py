@@ -28,6 +28,10 @@ class TokenData(BaseModel):
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """
+    This method is used to create JWT access token then return it
+    """
+
     data_to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -39,6 +43,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 async def validate_token(token: str = Depends(oauth2_scheme)) -> bool:
+    """
+    This method is used to validate that the given token is correct(not modified) and the stakeholder is/still authorized
+    """
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -63,7 +71,11 @@ async def validate_token(token: str = Depends(oauth2_scheme)) -> bool:
     return True
 
 
-async def current_user(token: str = Depends(oauth2_scheme)) -> StakeholderDataResponse:
+async def current_stakeholder(token: str = Depends(oauth2_scheme)) -> StakeholderDataResponse:
+    """
+    This method is used to return the current authorized stakeholder information using the token as a input.
+    """
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -79,16 +91,32 @@ async def current_user(token: str = Depends(oauth2_scheme)) -> StakeholderDataRe
     except JWTError:
         raise credentials_exception
     with engine.connect() as conn:
-        user_data = conn.execute(stakeholders.select().where(
+        stakeholder_data = conn.execute(stakeholders.select().where(
             stakeholders.c.email == token_data.username)).first()
-    if(not pwd_context.verify(user_data.password, token_data.password)):
+    if(not pwd_context.verify(stakeholder_data.password, token_data.password)):
         raise credentials_exception
-    if user_data is None:
+    if stakeholder_data is None:
         raise credentials_exception
-    return StakeholderDataResponse(**dict(user_data))
+    return StakeholderDataResponse(**dict(stakeholder_data))
 
 
-async def validate_admin(current_user: StakeholderDataResponse = Depends(current_user)) -> bool:
-    if not current_user.is_admin:
-        raise HTTPException(status_code=400, detail="This user is not an Admin.")
+async def validate_admin(current_stackholder: StakeholderDataResponse = Depends(current_stakeholder)) -> bool:
+    """
+    This method is used check if the current authorized stakeholder is an admin or not.
+    """
+
+    if not current_stackholder.is_admin:
+        raise HTTPException(
+            status_code=400, detail="This stakeholder is not an Admin. only admins can create users.")
     return True
+
+
+async def current_admin_email(current_stakeholder: StakeholderDataResponse = Depends(current_stakeholder)) -> str:
+    """
+    This method is used return the current authorized stakeholder is email.
+    """
+
+    if not current_stakeholder.is_admin:
+        raise HTTPException(
+            status_code=400, detail="This stakeholder is not an Admin. only admins can create users.")
+    return current_stakeholder.email

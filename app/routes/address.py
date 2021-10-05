@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.get('/addresses', response_model=AddressResponseDoc)
-async def get_all_addresses(active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def get_all_addresses(_: bool = Depends(validate_token)) -> JSONResponse:
     """
     Returns all available addresses in the database.
     """
@@ -30,7 +30,7 @@ async def get_all_addresses(active_user: bool = Depends(validate_token)) -> JSON
 
 
 @ router.get('/addresses/{address_id}', response_model=AddressRequestDoc)
-async def get_address(address_id: UUID, active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def get_address(address_id: UUID, _: bool = Depends(validate_token)) -> JSONResponse:
     """
     Returns all the information of the following address ID.
     """
@@ -47,7 +47,7 @@ async def get_address(address_id: UUID, active_user: bool = Depends(validate_tok
 
 
 @router.post('/addresses', response_model=AddressRequestDoc)
-async def create_address(address_data: AddressDataRequest, active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def create_address(address_data: AddressDataRequest, _: bool = Depends(validate_token)) -> JSONResponse:
     f"""
     `address`: string, The name of the Address.\n
     `street`: string, The name of the street.\n
@@ -67,7 +67,7 @@ async def create_address(address_data: AddressDataRequest, active_user: bool = D
 
 
 @ router.delete('/addresses/{address_id}')
-async def delete_address(address_id: UUID, active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def delete_address(address_id: UUID, _: bool = Depends(validate_token)) -> JSONResponse:
     """
     Deletes all the information for this address ID from the database.
     """
@@ -85,7 +85,7 @@ async def delete_address(address_id: UUID, active_user: bool = Depends(validate_
 
 
 @ router.patch('/addresses/{address_id}', response_model=AddressRequestDoc)
-async def update_address(address_id: UUID, address_data: AddressDataRequest, active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def update_address(address_id: UUID, address_data: AddressDataRequest, _: bool = Depends(validate_token)) -> JSONResponse:
     """
     Update address information that matches the inserted address ID.
     """

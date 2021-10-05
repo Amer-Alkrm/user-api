@@ -25,7 +25,7 @@ WORKDIR /app
 COPY . /app
 
 ENV PATH=/opt/local/bin:$PATH \
-    PYTHONPATH=/opt/local/lib/python3.9/site-packages:/app/src
+    PYTHONPATH=/opt/local/lib/python3.9/site-packages:/app/app
 
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port","80"]

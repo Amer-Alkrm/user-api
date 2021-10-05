@@ -23,6 +23,7 @@ def mock_response_user_data() -> dict:
         'age': 25,
         'address_id': str(uuid4()),
         'degree': 2,
+        'created_by_email': 'amer@gmail.com',
         'gender': 2,
         'created_at': str(datetime.utcnow()).replace(' ', 'T'),
         'updated_at': str(datetime.utcnow()).replace(' ', 'T'),

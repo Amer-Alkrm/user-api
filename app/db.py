@@ -46,7 +46,7 @@ stakeholders = Table(
            primary_key=True, nullable=False),
     Column('email', String, nullable=False, unique=True),
     Column('password', String, nullable=False),
-    Column('created_by_email', UUID(as_uuid=True), nullable=True),
+    Column('created_by_email', String, nullable=True),
     Column('is_admin', Boolean, nullable=False, index=True),
     Column('created_at', DateTime, nullable=False, **new_time),
     Column('updated_at', DateTime, nullable=False, onupdate=now, **new_time)

@@ -8,7 +8,7 @@ from starlette.status import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUN
 @pytest.mark.parametrize('found', [(True), (False)])
 def test_get_all_addresses(mocker: MockerFixture, client: TestClient,
                            mock_response_address_data: str, found: bool) -> None:
-    mock_connect = mocker.patch('src.routes.address.engine.connect')
+    mock_connect = mocker.patch('app.routes.address.engine.connect')
     response_data = [mock_response_address_data]
     if found:
         mock_connect.return_value.__enter__.return_value.execute.return_value = [
@@ -25,7 +25,7 @@ def test_get_all_addresses(mocker: MockerFixture, client: TestClient,
 @pytest.mark.parametrize('found, status_code', [(True, HTTP_200_OK), (False, HTTP_404_NOT_FOUND)])
 def test_get_address(mocker: MockerFixture, client: TestClient,
                      mock_response_address_data: dict, mock_address_id: str, found: bool, status_code: status) -> None:
-    mock_connect = mocker.patch('src.routes.address.engine.connect')
+    mock_connect = mocker.patch('app.routes.address.engine.connect')
     response_data = mock_response_address_data
     if found:
         mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = mock_response_address_data
@@ -41,7 +41,7 @@ def test_get_address(mocker: MockerFixture, client: TestClient,
 
 def test_create_address(mocker: MockerFixture, client: TestClient,
                         mock_response_address_data: dict) -> None:
-    mock_connect = mocker.patch('src.routes.address.engine.begin')
+    mock_connect = mocker.patch('app.routes.address.engine.begin')
     mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = mock_response_address_data
 
     with client.post('/addresses', json=mock_response_address_data) as response:
@@ -52,7 +52,7 @@ def test_create_address(mocker: MockerFixture, client: TestClient,
 
 @ pytest.mark.parametrize('found, status_code', [(True, HTTP_204_NO_CONTENT), (False, HTTP_404_NOT_FOUND)])
 def test_delete_address(mocker: MockerFixture, client: TestClient, mock_address_id: str, found: bool, status_code: status) -> None:
-    mock_connect = mocker.patch('src.routes.address.engine.connect')
+    mock_connect = mocker.patch('app.routes.address.engine.connect')
     mock_connect.return_value.__enter__.return_value.execute.return_value.rowcount = found
 
     response_data = {'data': f'{mock_address_id} Address Deleted Successfully'} if found else{
@@ -67,7 +67,7 @@ def test_delete_address(mocker: MockerFixture, client: TestClient, mock_address_
 @ pytest.mark.parametrize('found, status_code', [(True, HTTP_200_OK), (False, HTTP_404_NOT_FOUND)])
 def test_update_address(mocker: MockerFixture, client: TestClient,
                         mock_response_address_data: dict, mock_address_id: str, found: bool, status_code: status) -> None:
-    mock_connect = mocker.patch('src.routes.address.engine.begin')
+    mock_connect = mocker.patch('app.routes.address.engine.begin')
     response_data = mock_response_address_data
     if found:
         mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = mock_response_address_data

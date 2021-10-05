@@ -6,17 +6,17 @@ from fastapi.encoders import jsonable_encoder as encoder
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 
-from services.authentication import validate_admin, validate_token
 from db import addresses, engine, users
 from docs import UserRequestDoc, UserResponseDoc
 from enums import Degree, Gender, all_enum_to_str
 from model import UserDataRequest, UserDataResponse
+from services.authentication import current_admin_email, validate_admin, validate_token
 
 router = APIRouter()
 
 
 @router.get('/users', response_model=UserResponseDoc)
-async def get_all_users(active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def get_all_users(_: bool = Depends(validate_token)) -> JSONResponse:
     """
     Returns all available users in the database.
     """
@@ -33,7 +33,7 @@ async def get_all_users(active_user: bool = Depends(validate_token)) -> JSONResp
 
 
 @router.get('/users/gender', response_model=UserRequestDoc)
-async def get_user_by_gender(gender: Gender, active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def get_user_by_gender(gender: Gender, _: bool = Depends(validate_token)) -> JSONResponse:
     """
     Returns all users information with the following gender.
     """
@@ -51,7 +51,7 @@ async def get_user_by_gender(gender: Gender, active_user: bool = Depends(validat
 
 
 @router.get('/users/{user_id}', response_model=UserRequestDoc)
-async def get_user(user_id: UUID, active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def get_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONResponse:
     """
     Returns all the information of the following user_id.
     """
@@ -71,7 +71,7 @@ async def get_user(user_id: UUID, active_user: bool = Depends(validate_token)) -
 
 
 @router.post('/users', response_model=UserRequestDoc)
-async def create_user(inserted_user_data: UserDataRequest, active_user: bool = Depends(validate_admin)) -> JSONResponse:
+async def create_user(inserted_user_data: UserDataRequest, _: bool = Depends(validate_admin), admin_email: str = Depends(current_admin_email)) -> JSONResponse:
     f"""
     `address_id`: UUID Foreign key , this value must exist in the ID in the Address table \n
     `user_name`: string , the username of the user which will be displayed on the forum.\n
@@ -85,7 +85,8 @@ async def create_user(inserted_user_data: UserDataRequest, active_user: bool = D
 
     with engine.begin() as conn:
         result = conn.execute(users.insert().returning(users).values(
-            **inserted_user_data.dict()
+            **inserted_user_data.dict(),
+            created_by_email=admin_email
         )).first()
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content=encoder(UserDataResponse(
@@ -93,7 +94,7 @@ async def create_user(inserted_user_data: UserDataRequest, active_user: bool = D
 
 
 @ router.delete('/users/{user_id}')
-async def delete_user(user_id: UUID, active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def delete_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONResponse:
     """
     Deletes all the information for this user ID from the database.
     """
@@ -110,7 +111,7 @@ async def delete_user(user_id: UUID, active_user: bool = Depends(validate_token)
 
 
 @ router.patch('/users/{user_id}', response_model=UserRequestDoc)
-async def update_users(user_id: UUID, user_data: UserDataRequest, active_user: bool = Depends(validate_token)) -> JSONResponse:
+async def update_users(user_id: UUID, user_data: UserDataRequest, _: bool = Depends(validate_token)) -> JSONResponse:
     """
     Update user information that matches the inserted user ID.
     """
