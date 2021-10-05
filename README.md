@@ -1,8 +1,9 @@
 # user-api
 
-<p>This is a FastAPI Project that interacts with two tables(Users, Addresses) in the database.</p>
+<p>This is a Python FastAPI Project that interacts with two tables(Users, Addresses) in the database.
+</p>
 
-# This Project is built using Python. It uses the following libraries and frameworks:
+# Libraries and frameworks used:
 
 <ol>
 <li>FastAPI  </li>
