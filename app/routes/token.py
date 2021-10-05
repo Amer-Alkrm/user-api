@@ -1,6 +1,5 @@
 
-import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from os import getenv
 
 from fastapi import APIRouter, Depends, status
