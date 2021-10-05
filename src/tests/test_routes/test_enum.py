@@ -1,4 +1,4 @@
-from src.enums import Degree, IntEnum
+from enums import Degree, IntEnum
 
 
 def test_enum_methods():

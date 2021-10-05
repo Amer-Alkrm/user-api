@@ -7,6 +7,21 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from enums import Degree, Gender, State, all_enum_to_str
 
 
+class StakeholderDataRequest(BaseModel):
+    email: EmailStr
+    password: str
+    is_admin: bool
+
+
+class StakeholderDataResponse(BaseModel):
+    id: UUID
+    email: EmailStr
+    password: str
+    is_admin: bool
+    created_at: datetime
+    updated_at: datetime
+
+
 class UserDataRequest(BaseModel):
     address_id: UUID
     user_name: str

@@ -2,7 +2,9 @@ from datetime import datetime
 from os import getenv
 
 import sqlalchemy
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint
+from sqlalchemy import (
+    Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint
+)
 from sqlalchemy.dialects.postgresql import UUID
 
 from enums import Degree, Gender, IntEnum, State
@@ -37,6 +39,19 @@ addresses = Table(
 )
 
 
+stakeholders = Table(
+    'stakeholders',
+    metadata,
+    Column('id', UUID(as_uuid=True), server_default=new_uuid,
+           primary_key=True, nullable=False),
+    Column('email', String, nullable=False, unique=True),
+    Column('password', String, nullable=False),
+    Column('created_by_email', UUID(as_uuid=True), nullable=True),
+    Column('is_admin', Boolean, nullable=False, index=True),
+    Column('created_at', DateTime, nullable=False, **new_time),
+    Column('updated_at', DateTime, nullable=False, onupdate=now, **new_time)
+)
+
 users = Table(
     'users',
     metadata,
@@ -49,6 +64,7 @@ users = Table(
     Column('last_name', String, nullable=False),
     Column('age', Integer, nullable=False, index=True),
     Column('degree', IntEnum(Degree), nullable=False, index=True),
+    Column('created_by_email', String, nullable=False),
     Column('gender', IntEnum(Gender), nullable=False, index=True),
     Column('email', String, nullable=False),
     Column('created_at', DateTime, nullable=False, **new_time),

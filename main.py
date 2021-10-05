@@ -5,8 +5,14 @@ from sqlalchemy.exc import IntegrityError
 
 from src.routes.address import router as address_router
 from src.routes.user import router as user_router
-
+from src.routes.token import router as auth_router
 app = FastAPI()
+
+
+app.include_router(
+    auth_router,
+    tags=['Token'],
+)
 
 app.include_router(
     user_router,

@@ -1,5 +1,6 @@
-from src.model import UserDataRequest, AddressDataRequest
 import pytest
+
+from model import AddressDataRequest, UserDataRequest
 
 
 def test_validators():
