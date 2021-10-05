@@ -1,5 +1,4 @@
 
-import datetime
 from datetime import datetime, timedelta
 from os import getenv
 
