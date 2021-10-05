@@ -1,6 +1,6 @@
 # user-api
 
-This is a FastAPI Project that interacts with two tables(Users, Addresses) in the database.
+<p>This is a FastAPI Project that interacts with two tables(Users, Addresses) in the database.</p>
 # This Project is built using Python. It uses the following libraries and frameworks:
 <ol>
 <li>FastAPI  </li>
@@ -29,7 +29,7 @@ User Table:
 6- Update user by id
 
 
-To run this project in your machine all you need is Docker. If docker was not installed on your machine, go ahead and install it then follow the instructions below.
+<p>To run this project in your machine all you need is Docker. If docker was not installed on your machine, go ahead and install it then follow the instructions below.</p>
 
 # To run this project on your machine follow these instructions:
 1) Open your terminal from the user-api folder where the Dockerfile exists.
