@@ -1,7 +1,9 @@
 # user-api
 
 <p>This is a FastAPI Project that interacts with two tables(Users, Addresses) in the database.</p>
-<p><strong>This Project is built using Python. It uses the following libraries and frameworks: </strong></p>
+
+# This Project is built using Python. It uses the following libraries and frameworks:
+
 <ol>
 <li>FastAPI  </li>
 <li>SQLAlchemy </li>
