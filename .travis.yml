@@ -1,13 +1,11 @@
 language: python
-python: 
+python:
   - "3.9.6"
-
 
 services:
   - docker
 
-
 before_script: pip install docker-compose
 
 script:
-  - docker-compose run app sh -c "python -W always::DeprecationWarning -m pytest && flake8 --ignore=E501"
+  - docker-compose run --rm user-api-test
