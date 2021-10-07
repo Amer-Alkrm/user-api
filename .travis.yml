@@ -1,6 +1,6 @@
 language: python
 python: 
-  - "3.9.6-slim-buster"
+  - "3.9.6"
 
 
 services:
