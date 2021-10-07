@@ -44,4 +44,6 @@ services:
   user-api-test:
     extends: user-api-base
     container_name: user-api-pytest
+    depends_on:
+      - users-postgres
     command:  bin/unit_test.sh

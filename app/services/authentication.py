@@ -13,7 +13,6 @@ from pydantic import BaseModel
 from db import engine, stakeholders
 from model import StakeholderDataResponse
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -33,16 +32,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """
 
     data_to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+    expire = (datetime.utcnow() + expires_delta
+              ) if expires_delta else (datetime.utcnow() + timedelta(minutes=15))
     data_to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(data_to_encode, getenv("SECRET_KEY"), algorithm=getenv("ALGORITHM"))
     return encoded_jwt
 
 
-async def validate_token(token: str = Depends(oauth2_scheme)) -> bool:
+async def validate_token(token: str = Depends(OAuth2PasswordBearer(tokenUrl="token"))) -> bool:
     """
     This method is used to validate that the given token is correct(not modified) and the stakeholder is/still authorized
     """
@@ -56,22 +53,20 @@ async def validate_token(token: str = Depends(oauth2_scheme)) -> bool:
         payload = jwt.decode(token, getenv("SECRET_KEY"), algorithms=getenv("ALGORITHM"))
         username: str = payload.get("user")
         password: str = payload.get("pass")
-        if username is None:
-            raise credentials_exception
         token_data = TokenData(username=username, password=password)
     except JWTError:
         raise credentials_exception
     with engine.connect() as conn:
         user_data = conn.execute(stakeholders.select().where(
             stakeholders.c.email == token_data.username)).first()
-    if(not pwd_context.verify(user_data.password, token_data.password)):
+    if not user_data:
         raise credentials_exception
-    if user_data is None:
+    if(not pwd_context.verify(user_data.password, token_data.password)):
         raise credentials_exception
     return True
 
 
-async def current_stakeholder(token: str = Depends(oauth2_scheme)) -> StakeholderDataResponse:
+async def current_stakeholder(token: str = Depends(OAuth2PasswordBearer(tokenUrl="token"))) -> StakeholderDataResponse:
     """
     This method is used to return the current authorized stakeholder information using the token as a input.
     """
@@ -85,17 +80,15 @@ async def current_stakeholder(token: str = Depends(oauth2_scheme)) -> Stakeholde
         payload = jwt.decode(token, getenv("SECRET_KEY"), algorithms=getenv("ALGORITHM"))
         username: str = payload.get("user")
         password: str = payload.get("pass")
-        if username is None:
-            raise credentials_exception
         token_data = TokenData(username=username, password=password)
     except JWTError:
         raise credentials_exception
     with engine.connect() as conn:
         stakeholder_data = conn.execute(stakeholders.select().where(
             stakeholders.c.email == token_data.username)).first()
-    if(not pwd_context.verify(stakeholder_data.password, token_data.password)):
+    if not stakeholder_data:
         raise credentials_exception
-    if stakeholder_data is None:
+    if(not pwd_context.verify(stakeholder_data.password, token_data.password)):
         raise credentials_exception
     return StakeholderDataResponse(**dict(stakeholder_data))
 

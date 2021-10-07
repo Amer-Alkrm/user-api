@@ -15,7 +15,6 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-
 FROM base AS deploy
 
 COPY --from=build /opt/local /opt/local
@@ -26,6 +25,5 @@ COPY . /app
 
 ENV PATH=/opt/local/bin:$PATH \
     PYTHONPATH=/opt/local/lib/python3.9/site-packages:/app/app
-
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port","80"]

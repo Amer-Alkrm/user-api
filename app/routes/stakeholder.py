@@ -16,7 +16,7 @@ async def get_all_stakeholders() -> JSONResponse:
     """
 
     with engine.connect() as conn:
-        stakeholders_data = conn.execute(stakeholders.select()).fetchall()
+        stakeholders_data = conn.execute(stakeholders.select())
         if not stakeholders_data:
             return JSONResponse(status_code=status.HTTP_200_OK,
                                 content=[])

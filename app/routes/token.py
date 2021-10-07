@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @ router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()) -> JSONResponse:
+async def login_for_access_token(form_data=Depends(OAuth2PasswordRequestForm)) -> JSONResponse:
     """
     Takes username and password to authorize the stakeholder and returns the stakeholder's access token and the access token expiration date.
     """

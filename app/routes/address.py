@@ -14,8 +14,8 @@ from services.authentication import validate_token
 router = APIRouter()
 
 
-@router.get('/addresses', response_model=AddressResponseDoc)
-async def get_all_addresses(_: bool = Depends(validate_token)) -> JSONResponse:
+@router.get('/addresses', response_model=AddressResponseDoc, dependencies=[Depends(validate_token)])
+async def get_all_addresses() -> JSONResponse:
     """
     Returns all available addresses in the database.
     """
@@ -29,12 +29,11 @@ async def get_all_addresses(_: bool = Depends(validate_token)) -> JSONResponse:
             AddressDataResponse(**dict(data)) for data in address_data))
 
 
-@ router.get('/addresses/{address_id}', response_model=AddressRequestDoc)
-async def get_address(address_id: UUID, _: bool = Depends(validate_token)) -> JSONResponse:
+@ router.get('/addresses/{address_id}', response_model=AddressRequestDoc, dependencies=[Depends(validate_token)])
+async def get_address(address_id: UUID) -> JSONResponse:
     """
     Returns all the information of the following address ID.
     """
-
     with engine.connect() as conn:
         address_data = conn.execute(
             addresses.select().where(addresses.c.id == address_id)).first()
@@ -46,8 +45,8 @@ async def get_address(address_id: UUID, _: bool = Depends(validate_token)) -> JS
                             content=encoder((AddressDataResponse(**dict(address_data)))))
 
 
-@router.post('/addresses', response_model=AddressRequestDoc)
-async def create_address(address_data: AddressDataRequest, _: bool = Depends(validate_token)) -> JSONResponse:
+@router.post('/addresses', response_model=AddressRequestDoc, dependencies=[Depends(validate_token)])
+async def create_address(address_data: AddressDataRequest) -> JSONResponse:
     f"""
     `address`: string, The name of the Address.\n
     `street`: string, The name of the street.\n
@@ -55,7 +54,6 @@ async def create_address(address_data: AddressDataRequest, _: bool = Depends(val
     `zip_code`: integer, The zipcode must not exceed 5 characters. (Optional Field)\n
     `apartment_number`: integer\n
     """
-
     with engine.begin() as conn:
         address_data.dict(exclude_none=True)
         result = conn.execute(addresses.insert().returning(addresses).values(
@@ -66,8 +64,8 @@ async def create_address(address_data: AddressDataRequest, _: bool = Depends(val
                                 **dict(result))))
 
 
-@ router.delete('/addresses/{address_id}')
-async def delete_address(address_id: UUID, _: bool = Depends(validate_token)) -> JSONResponse:
+@ router.delete('/addresses/{address_id}', dependencies=[Depends(validate_token)])
+async def delete_address(address_id: UUID) -> JSONResponse:
     """
     Deletes all the information for this address ID from the database.
     """
@@ -84,8 +82,8 @@ async def delete_address(address_id: UUID, _: bool = Depends(validate_token)) ->
                             content={'data': f'{address_id} Address Deleted Successfully'})
 
 
-@ router.patch('/addresses/{address_id}', response_model=AddressRequestDoc)
-async def update_address(address_id: UUID, address_data: AddressDataRequest, _: bool = Depends(validate_token)) -> JSONResponse:
+@ router.patch('/addresses/{address_id}', response_model=AddressRequestDoc, dependencies=[Depends(validate_token)])
+async def update_address(address_id: UUID, address_data: AddressDataRequest) -> JSONResponse:
     """
     Update address information that matches the inserted address ID.
     """
