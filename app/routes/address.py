@@ -1,19 +1,20 @@
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 from fastapi.encoders import jsonable_encoder as encoder
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 
-from src.db import addresses, engine
-from src.docs import AddressRequestDoc, AddressResponseDoc
-from src.enums import State, all_enum_to_str
-from src.model import AddressDataRequest, AddressDataResponse
+from db import addresses, engine
+from docs import AddressRequestDoc, AddressResponseDoc
+from enums import State, all_enum_to_str
+from model import AddressDataRequest, AddressDataResponse
+from services.authentication import validate_token
 
 router = APIRouter()
 
 
-@router.get('/addresses', response_model=AddressResponseDoc)
+@router.get('/addresses', response_model=AddressResponseDoc, dependencies=[Depends(validate_token)])
 async def get_all_addresses() -> JSONResponse:
     """
     Returns all available addresses in the database.
@@ -28,12 +29,11 @@ async def get_all_addresses() -> JSONResponse:
             AddressDataResponse(**dict(data)) for data in address_data))
 
 
-@ router.get('/addresses/{address_id}', response_model=AddressRequestDoc)
+@ router.get('/addresses/{address_id}', response_model=AddressRequestDoc, dependencies=[Depends(validate_token)])
 async def get_address(address_id: UUID) -> JSONResponse:
     """
     Returns all the information of the following address ID.
     """
-
     with engine.connect() as conn:
         address_data = conn.execute(
             addresses.select().where(addresses.c.id == address_id)).first()
@@ -45,7 +45,7 @@ async def get_address(address_id: UUID) -> JSONResponse:
                             content=encoder((AddressDataResponse(**dict(address_data)))))
 
 
-@router.post('/addresses', response_model=AddressRequestDoc)
+@router.post('/addresses', response_model=AddressRequestDoc, dependencies=[Depends(validate_token)])
 async def create_address(address_data: AddressDataRequest) -> JSONResponse:
     f"""
     `address`: string, The name of the Address.\n
@@ -54,7 +54,6 @@ async def create_address(address_data: AddressDataRequest) -> JSONResponse:
     `zip_code`: integer, The zipcode must not exceed 5 characters. (Optional Field)\n
     `apartment_number`: integer\n
     """
-
     with engine.begin() as conn:
         address_data.dict(exclude_none=True)
         result = conn.execute(addresses.insert().returning(addresses).values(
@@ -65,7 +64,7 @@ async def create_address(address_data: AddressDataRequest) -> JSONResponse:
                                 **dict(result))))
 
 
-@ router.delete('/addresses/{address_id}')
+@ router.delete('/addresses/{address_id}', dependencies=[Depends(validate_token)])
 async def delete_address(address_id: UUID) -> JSONResponse:
     """
     Deletes all the information for this address ID from the database.
@@ -83,7 +82,7 @@ async def delete_address(address_id: UUID) -> JSONResponse:
                             content={'data': f'{address_id} Address Deleted Successfully'})
 
 
-@ router.patch('/addresses/{address_id}', response_model=AddressRequestDoc)
+@ router.patch('/addresses/{address_id}', response_model=AddressRequestDoc, dependencies=[Depends(validate_token)])
 async def update_address(address_id: UUID, address_data: AddressDataRequest) -> JSONResponse:
     """
     Update address information that matches the inserted address ID.

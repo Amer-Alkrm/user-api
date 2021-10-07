@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-from src.enums import IntEnum, State
+from enums import IntEnum, State
 
 # revision identifiers, used by Alembic.
 revision = '2b29fb165621'

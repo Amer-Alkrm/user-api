@@ -1,7 +1,7 @@
 """create user table
 
 Revision ID: 4f9bace0c0e2
-Revises: 
+Revises: None
 Create Date: 2021-09-20 17:02:27.748021
 
 """
@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-from src.enums import Degree, Gender, IntEnum
+from enums import Degree, Gender, IntEnum
 
 # revision identifiers, used by Alembic.
 revision = '4f9bace0c0e2'

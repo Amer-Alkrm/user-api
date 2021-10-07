@@ -1,4 +1,4 @@
-version: "2.4"
+version: "2"
 
 services:
   user-api-base:
@@ -17,6 +17,10 @@ services:
       - DB_HOST=users-postgres
       - DB_PORT=5432
       - DB_NAME=users
+      # Authentication Variables
+      - SECRET_KEY=cf7b9d67329937d73f306f43f4523442d945d6c9119d6f8baf2e83d1ed34b9d7
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=15
     command: ["echo", "I only exist to be extended so I'll just exit, thanks"]
 
   user-api-service:
@@ -24,7 +28,7 @@ services:
     container_name: userapi
     depends_on:
       - users-postgres
-    command:  /bin/sh -c "bin/boot.sh"
+    command:  bin/boot.sh
 
   users-postgres:
     container_name: users-postgres
@@ -42,4 +46,4 @@ services:
     container_name: user-api-pytest
     depends_on:
       - users-postgres
-    command:  /bin/sh -c "bin/unit_test.sh"
+    command:  bin/unit_test.sh
