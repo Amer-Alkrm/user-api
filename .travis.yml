@@ -1,11 +1,18 @@
 language: python
+<<<<<<< HEAD
 python:
   - "3.9.6"
+=======
+python: 
+  - "3.9"
+
+>>>>>>> 9e75be3 (TR)
 
 services:
   - docker
 
-before_script: pip install docker-compose
 
-script:
+before_deploy: pip install docker-compose
+
+after_deploy:
   - docker-compose run --rm user-api-test
