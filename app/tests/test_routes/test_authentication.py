@@ -9,19 +9,19 @@ from services.authentication import (
 )
 
 
-def test_create_access_token(mock_access_token: str):
-    access_token = create_access_token(data={'user': 'user@example.com',
-                                             'pass': '$2b$12$F3Hf/cKuV35SOwRfZnlWlOrfwDzt1ciMQAyv5ax75OhszEM66ZHgq'})
-    assert access_token[:93] == mock_access_token[:93]
+def test_create_access_token(mock_access_token: str, mock_user_data_access_token: dict) -> None:
+    access_token = create_access_token(data=mock_user_data_access_token)
+    assert access_token[37:95] == mock_access_token[37:95]
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('correct_password', [(True), (False)])
 @pytest.mark.parametrize('access_token_found', [(True), (False)])
 @pytest.mark.parametrize('found_data', [(True), (False)])
-async def test_validate_token(mock_access_token: str, mock_access_token_empty: str, mocker: MockerFixture,
-                              mock_response_stakeholder_data: dict, found_data: bool, access_token_found: bool,
-                              correct_password: True):
+async def test_validate_token(mock_access_token: str, mock_access_token_empty: str,
+                              mocker: MockerFixture, mock_response_stakeholder_data: dict,
+                              found_data: bool, access_token_found: bool,
+                              correct_password: True) -> None:
 
     mock_connect = mocker.patch('services.authentication.engine.connect')
 
@@ -31,9 +31,11 @@ async def test_validate_token(mock_access_token: str, mock_access_token_empty: s
         if not correct_password:
             stakeholder_data.password = 'hello'
         if found_data:
-            mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = stakeholder_data
+            (mock_connect.return_value.__enter__.return_value.execute.return_value
+             ).first.return_value = stakeholder_data
         else:
-            mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = None
+            (mock_connect.return_value.__enter__.return_value.execute.return_value
+             ).first.return_value = None
 
         if access_token_found:
             result = await validate_token(mock_access_token)
@@ -48,9 +50,11 @@ async def test_validate_token(mock_access_token: str, mock_access_token_empty: s
 @pytest.mark.parametrize('correct_password', [(True), (False)])
 @pytest.mark.parametrize('access_token_found', [(True), (False)])
 @pytest.mark.parametrize('found_data', [(True), (False)])
-async def test_current_stakeholder(mocker: MockerFixture, mock_access_token: str, mock_access_token_empty: str,
-                                   mock_response_stakeholder_data: dict, found_data: bool, access_token_found: bool,
-                                   correct_password: bool):
+async def test_current_stakeholder(mocker: MockerFixture, mock_access_token: str,
+                                   mock_access_token_empty: str,
+                                   mock_response_stakeholder_data: dict,
+                                   found_data: bool, access_token_found: bool,
+                                   correct_password: bool) -> None:
 
     mock_connect = mocker.patch('services.authentication.engine.connect')
 
@@ -60,9 +64,11 @@ async def test_current_stakeholder(mocker: MockerFixture, mock_access_token: str
         if not correct_password:
             stakeholder_data.password = 'hello'
         if found_data:
-            mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = stakeholder_data
+            (mock_connect.return_value.__enter__.return_value.execute.return_value
+             ).first.return_value = stakeholder_data
         else:
-            mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = None
+            (mock_connect.return_value.__enter__.return_value.execute.return_value
+             ).first.return_value = None
 
         if access_token_found:
             result = await current_stakeholder(mock_access_token)
@@ -75,7 +81,7 @@ async def test_current_stakeholder(mocker: MockerFixture, mock_access_token: str
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('is_admin', [(True), (False)])
-async def test_validate_admin(mock_request_stakeholder_data: dict, is_admin: bool):
+async def test_validate_admin(mock_request_stakeholder_data: dict, is_admin: bool) -> None:
     stakeholder_data = StakeholderDataRequest(
         **mock_request_stakeholder_data)
     with pytest.raises(HTTPException):
@@ -88,7 +94,7 @@ async def test_validate_admin(mock_request_stakeholder_data: dict, is_admin: boo
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('is_admin', [(True), (False)])
-async def test_current_admin_email(mock_request_stakeholder_data: dict, is_admin: bool):
+async def test_current_admin_email(mock_request_stakeholder_data: dict, is_admin: bool) -> None:
     stakeholder_data = StakeholderDataRequest(
         **mock_request_stakeholder_data)
     with pytest.raises(HTTPException):

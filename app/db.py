@@ -10,7 +10,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from enums import Degree, Gender, IntEnum, State
 
 # Database Connection
-DATABASE_URL = f'postgresql://{getenv("DB_USER_NAME")}:{getenv("DB_PASSWORD")}@{getenv("DB_HOST")}:{getenv("DB_PORT")}/{getenv("DB_NAME")}'
+DATABASE_URL = f'postgresql://{getenv("DB_USER_NAME")}' +\
+    f':{getenv("DB_PASSWORD")}@{getenv("DB_HOST")}:{getenv("DB_PORT")}/{getenv("DB_NAME")}'
 
 engine = sqlalchemy.create_engine(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
