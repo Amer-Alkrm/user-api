@@ -7,3 +7,4 @@ before_script: pip install docker
 
 script:
   - docker-compose run --rm user-api-test && flake8
+  - flake8
