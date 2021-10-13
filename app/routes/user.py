@@ -68,7 +68,7 @@ async def get_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONResp
 
 
 @router.post('/users', response_model=UserRequestDoc)
-async def create_user(inserted_user_data: UserDataRequest, _: bool = Depends(validate_admin),
+async def create_user(inserted_user_data: UserDataRequest, is_admin: bool = Depends(validate_admin),
                       admin_email: str = Depends(current_admin_email)) -> JSONResponse:
     f"""
     `address_id`: UUID Foreign key , this value must exist in the ID in the Address table \n
@@ -81,6 +81,10 @@ async def create_user(inserted_user_data: UserDataRequest, _: bool = Depends(val
     `email`: Email, it must be a valid mail format. Example: example@gmail.com\n
     """
     with engine.begin() as conn:
+        if not is_admin:
+            raise HTTPException(
+                status_code=403, detail=('This stakeholder is not an Admin.'
+                                         + ' only admins can create users.'))
         result = conn.execute(users.insert().returning(users).values(
             **inserted_user_data.dict(),
             created_by_email=admin_email

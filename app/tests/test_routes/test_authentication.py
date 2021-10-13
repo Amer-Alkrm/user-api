@@ -31,11 +31,11 @@ async def test_validate_token(mock_access_token: str, mock_access_token_empty: s
         if not correct_password:
             stakeholder_data.password = 'hello'
         if found_data:
-            (mock_connect.return_value.__enter__.return_value.execute.return_value
-             ).first.return_value = stakeholder_data
+            mock_connect.return_value.__enter__.return_value.execute.return_value\
+                .first.return_value = stakeholder_data
         else:
-            (mock_connect.return_value.__enter__.return_value.execute.return_value
-             ).first.return_value = None
+            mock_connect.return_value.__enter__.return_value.execute.return_value\
+                .first.return_value = None
 
         if access_token_found:
             result = await validate_token(mock_access_token)
@@ -64,11 +64,11 @@ async def test_current_stakeholder(mocker: MockerFixture, mock_access_token: str
         if not correct_password:
             stakeholder_data.password = 'hello'
         if found_data:
-            (mock_connect.return_value.__enter__.return_value.execute.return_value
-             ).first.return_value = stakeholder_data
+            mock_connect.return_value.__enter__.return_value.execute.return_value\
+                .first.return_value = stakeholder_data
         else:
-            (mock_connect.return_value.__enter__.return_value.execute.return_value
-             ).first.return_value = None
+            mock_connect.return_value.__enter__.return_value.execute.return_value\
+                .first.return_value = None
 
         if access_token_found:
             result = await current_stakeholder(mock_access_token)
@@ -84,22 +84,15 @@ async def test_current_stakeholder(mocker: MockerFixture, mock_access_token: str
 async def test_validate_admin(mock_request_stakeholder_data: dict, is_admin: bool) -> None:
     stakeholder_data = StakeholderDataRequest(
         **mock_request_stakeholder_data)
-    with pytest.raises(HTTPException):
-        if not is_admin:
-            stakeholder_data.is_admin = False
-        result = await validate_admin(stakeholder_data)
-        assert result is True
-        raise HTTPException(status_code=200, detail='to get out of pytest raise with no errors.')
+    if not is_admin:
+        stakeholder_data.is_admin = False
+    result = await validate_admin(stakeholder_data)
+    assert result is is_admin
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('is_admin', [(True), (False)])
-async def test_current_admin_email(mock_request_stakeholder_data: dict, is_admin: bool) -> None:
+async def test_current_admin_email(mock_request_stakeholder_data: dict) -> None:
     stakeholder_data = StakeholderDataRequest(
         **mock_request_stakeholder_data)
-    with pytest.raises(HTTPException):
-        if not is_admin:
-            stakeholder_data.is_admin = False
-        result = await current_admin_email(stakeholder_data)
-        assert result == mock_request_stakeholder_data['email']
-        raise HTTPException(status_code=200, detail='to get out of pytest raise with no errors.')
+    result = await current_admin_email(stakeholder_data)
+    assert result == mock_request_stakeholder_data['email']

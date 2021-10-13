@@ -21,8 +21,12 @@ def mocking_auth_admin_email() -> str:
     return 'amer@gmail.com'
 
 
-def mocking_auth_is_admin() -> bool:
+def mocking_auth_is_admin_true() -> bool:
     return True
+
+
+def mocking_auth_is_admin_false() -> bool:
+    return False
 
 
 def mocking_req_form() -> dict:
@@ -42,7 +46,7 @@ def mocking_current_stackholder() -> dict:
 def client() -> TestClient:
     app.dependency_overrides[validate_token] = mocking_auth_token_validation
     app.dependency_overrides[current_admin_email] = mocking_auth_admin_email
-    app.dependency_overrides[validate_admin] = mocking_auth_is_admin
+    app.dependency_overrides[validate_admin] = mocking_auth_is_admin_true
     app.dependency_overrides[OAuth2PasswordRequestForm] = mocking_req_form
     app.dependency_overrides[current_stakeholder] = mocking_current_stackholder
     client = TestClient(app)

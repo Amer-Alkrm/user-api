@@ -1,5 +1,5 @@
 from datetime import datetime
-from os import getenv
+from os import environ
 
 import sqlalchemy
 from sqlalchemy import (
@@ -11,8 +11,8 @@ from sqlalchemy.orm import sessionmaker
 from enums import Degree, Gender, IntEnum, State
 
 # Database Connection
-DATABASE_URL = f'postgresql://{getenv("DB_USER_NAME")}' +\
-    f':{getenv("DB_PASSWORD")}@{getenv("DB_HOST")}:{getenv("DB_PORT")}/{getenv("DB_NAME")}'
+DATABASE_URL = 'postgresql://{DB_USER_NAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'.format(
+    **environ)
 
 engine = sqlalchemy.create_engine(DATABASE_URL)
 Session = sessionmaker(engine)

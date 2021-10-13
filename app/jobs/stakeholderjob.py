@@ -1,9 +1,14 @@
 
+from os import getenv
+
 from sqlalchemy.exc import IntegrityError
 
 from db import Session, stakeholders
-from jobs.jobs_config import default_stakeholder
 from services.log import logger
+
+default_stakeholder = {'email': getenv('DEF_EMAIL'),
+                       'password': getenv('DEF_PASS'),
+                       'is_admin': bool(getenv('DEF_ADMIN'))}
 
 
 def delete_and_add_default_stakeholders() -> None:

@@ -59,5 +59,4 @@ services:
     container_name: user-api-stakeholdersjob
     depends_on:
       - users-postgres
-    # command: bin/stakeholderjob.sh
     command: ["python", "app/jobs/stakeholderjob.py"]

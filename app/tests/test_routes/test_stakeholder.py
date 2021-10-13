@@ -24,8 +24,8 @@ def test_get_all_stakeholders(mocker: MockerFixture, client: TestClient,
 def test_create_address(mocker: MockerFixture, client: TestClient,
                         mock_response_stakeholder_data: dict) -> None:
     mock_connect = mocker.patch('routes.stakeholder.engine.begin')
-    (mock_connect.return_value.__enter__.return_value.execute.return_value
-     ).first.return_value = mock_response_stakeholder_data
+    mock_connect.return_value.__enter__.return_value.execute.return_value\
+        .first.return_value = mock_response_stakeholder_data
 
     with client.post('/admin/stakeholders', json=mock_response_stakeholder_data) as response:
         assert mock_connect.called

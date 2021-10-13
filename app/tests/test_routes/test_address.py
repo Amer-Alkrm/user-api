@@ -32,11 +32,11 @@ def test_get_address(mocker: MockerFixture, client: TestClient,
     mock_connect = mocker.patch('routes.address.engine.connect')
     response_data = mock_response_address_data
     if found:
-        (mock_connect.return_value.__enter__.return_value.execute.return_value
-         ).first.return_value = mock_response_address_data
+        mock_connect.return_value.__enter__.return_value.execute.return_value\
+            .first.return_value = mock_response_address_data
     else:
-        (mock_connect.return_value.__enter__.return_value.execute.return_value
-         ).first.return_value = []
+        mock_connect.return_value.__enter__.return_value.execute.return_value\
+            .first.return_value = []
         response_data = {'detail': f'Address Not Found id: {mock_address_id}'}
 
     with client.get(f'/addresses/{mock_address_id}') as response:
@@ -50,11 +50,11 @@ def test_get_address(mocker: MockerFixture, client: TestClient,
 def test_create_address(mocker: MockerFixture, client: TestClient,
                         mock_response_address_data: dict, valid_state: bool,
                         status_code: status) -> None:
-    if(not valid_state):
+    if not valid_state:
         mock_response_address_data['state'] = 25
     mock_connect = mocker.patch('routes.address.engine.begin')
-    (mock_connect.return_value.__enter__.return_value.execute.return_value
-     ).first.return_value = mock_response_address_data
+    mock_connect.return_value.__enter__.return_value.execute.return_value\
+        .first.return_value = mock_response_address_data
 
     with client.post('/addresses', json=mock_response_address_data) as response:
         assert mock_connect.called is valid_state
@@ -86,12 +86,12 @@ def test_update_address(mocker: MockerFixture, client: TestClient,
     mock_connect = mocker.patch('routes.address.engine.begin')
     response_data = mock_response_address_data
     if found:
-        (mock_connect.return_value.__enter__.return_value.execute.return_value
-         ).first.return_value = mock_response_address_data
+        mock_connect.return_value.__enter__.return_value.execute.return_value\
+            .first.return_value = mock_response_address_data
     else:
         response_data = {'detail': f'Address id: {mock_address_id} does not exist.'}
-        (mock_connect.return_value.__enter__.return_value.execute.return_value
-         ).first.return_value.rowcount = 0
+        mock_connect.return_value.__enter__.return_value.execute.return_value\
+            .first.return_value.rowcount = 0
     with pytest.raises(AttributeError):
         with client.patch(f'/addresses/{mock_address_id}',
                           json=mock_response_address_data) as response:

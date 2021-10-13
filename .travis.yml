@@ -3,8 +3,6 @@ language: generic
 services:
   - docker
 
-before_script: pip install docker
-
 script:
-  - docker-compose run --rm user-api-test && flake8
-  - flake8
+  - docker-compose run --rm --no-deps user-api-test sh -c 'flake8 && isort --check --diff .'
+  - docker-compose run --rm user-api-test

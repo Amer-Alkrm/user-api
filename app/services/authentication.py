@@ -77,7 +77,7 @@ async def current_stakeholder(token: str = Depends(
             stakeholders.c.email == token_data['username'])).first()
     if not stakeholder_data:
         raise credentials_exception
-    if(not pwd_context.verify(stakeholder_data.password, token_data['password'])):
+    if not pwd_context.verify(stakeholder_data.password, token_data['password']):
         raise credentials_exception
     return StakeholderDataResponse(**dict(stakeholder_data))
 
@@ -88,9 +88,7 @@ async def validate_admin(current_stackholder: StakeholderDataResponse =
     This method is used check if the current authorized stakeholder is an admin or not.
     """
     if not current_stackholder.is_admin:
-        raise HTTPException(
-            status_code=400, detail=('This stakeholder is not an Admin.'
-                                     + ' only admins can create users.'))
+        return False
     return True
 
 
@@ -99,8 +97,4 @@ async def current_admin_email(current_stakeholder: StakeholderDataResponse =
     """
     This method is used return the current authorized stakeholder is email.
     """
-    if not current_stakeholder.is_admin:
-        raise HTTPException(
-            status_code=400, detail=('This stakeholder is not an Admin.'
-                                     + ' only admins can create users.'))
     return current_stakeholder.email

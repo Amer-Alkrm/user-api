@@ -15,11 +15,11 @@ def test_login_for_token(mocker: MockerFixture, mock_access_token: str, mock_use
     mock_create_access_token.return_value = mock_access_token
 
     if found:
-        (mock_connect.return_value.__enter__.return_value.execute.return_value
-         ).first.return_value = mock_user_data
+        mock_connect.return_value.__enter__.return_value.execute.return_value\
+            .first.return_value = mock_user_data
     else:
-        (mock_connect.return_value.__enter__.return_value.execute.return_value
-         ).first.return_value = []
+        mock_connect.return_value.__enter__.return_value.execute.return_value\
+            .first.return_value = []
         token_response_data = {'detail': 'Incorrect username or password'}
 
     with client.post('/token') as response:
