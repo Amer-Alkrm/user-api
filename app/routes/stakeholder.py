@@ -14,7 +14,6 @@ async def get_all_stakeholders() -> JSONResponse:
     """
     Returns all available stakeholders in the database.
     """
-
     with engine.connect() as conn:
         stakeholders_data = conn.execute(stakeholders.select())
         if not stakeholders_data:
@@ -30,7 +29,6 @@ async def create_stakeholder(inserted_stakeholder_data: StakeholderDataRequest) 
     """
     Creates a new stakeholder with the filled data.
     """
-
     with engine.begin() as conn:
         result = conn.execute(stakeholders.insert().returning(stakeholders).values(
             **inserted_stakeholder_data.dict(),

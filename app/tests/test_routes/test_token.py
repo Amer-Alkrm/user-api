@@ -1,32 +1,32 @@
-from datetime import datetime, timedelta
-from os import getenv
-
 import pytest
-from conftest import User_data
 from fastapi.testclient import TestClient
 from pytest_mock import MockerFixture
 from starlette import status
 from starlette.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED
 
 
-@pytest.mark.parametrize('found, status_code', [(True, HTTP_200_OK), (False, HTTP_401_UNAUTHORIZED)])
-def test_login_for_token(mocker: MockerFixture, mock_access_token: str, mock_user_data: User_data, client: TestClient, found: bool, status_code: status) -> None:
+@pytest.mark.parametrize('found, status_code', [(True, HTTP_200_OK),
+                                                (False, HTTP_401_UNAUTHORIZED)])
+def test_login_for_token(mocker: MockerFixture, mock_access_token: str, mock_user_data: dict,
+                         client: TestClient, found: bool, status_code: status,
+                         token_response_data: dict) -> None:
     mock_connect = mocker.patch('routes.token.engine.connect')
     mock_create_access_token = mocker.patch('routes.token.create_access_token')
     mock_create_access_token.return_value = mock_access_token
 
-    response_data = {"access_token": mock_access_token, "token_type": "bearer", 'EXPIRE_MINUTES': int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES")),
-                     'EXPIRE_DATE_IN_UTC': datetime.now() + timedelta(minutes=int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES")))}
     if found:
-        mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = mock_user_data
+        mock_connect.return_value.__enter__.return_value.execute.return_value\
+            .first.return_value = mock_user_data
     else:
-        mock_connect.return_value.__enter__.return_value.execute.return_value.first.return_value = []
-        response_data = {'detail': 'Incorrect username or password'}
+        mock_connect.return_value.__enter__.return_value.execute.return_value\
+            .first.return_value = []
+        token_response_data = {'detail': 'Incorrect username or password'}
+
     with client.post('/token') as response:
         assert mock_connect.called
         assert response.status_code == status_code
-        assert response.json()[
-            'access_token'] == response_data['access_token'] if found else response.json() == response_data
+        assert response.json()['access_token'] == token_response_data[
+            'access_token'] if found else response.json() == token_response_data
 
 
 def test_get_current_stakeholder(client: TestClient, mock_request_stakeholder_data: dict) -> None:

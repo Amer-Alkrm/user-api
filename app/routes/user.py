@@ -20,7 +20,6 @@ async def get_all_users(_: bool = Depends(validate_token)) -> JSONResponse:
     """
     Returns all available users in the database.
     """
-
     with engine.connect() as conn:
         users_data = conn.execute(users.select())
         if not users_data:
@@ -37,7 +36,6 @@ async def get_user_by_gender(gender: Gender, _: bool = Depends(validate_token)) 
     """
     Returns all users information with the following gender.
     """
-
     with engine.connect() as conn:
         user_data = conn.execute(
             users.select().where(users.c.gender == gender))
@@ -55,7 +53,6 @@ async def get_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONResp
     """
     Returns all the information of the following user_id.
     """
-
     with engine.connect() as conn:
         user_data = conn.execute(  # join alias or label.
             users.join(addresses, and_(users.c.id == user_id, addresses.c.id == users.c.address_id))
@@ -63,7 +60,7 @@ async def get_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONResp
         if not user_data:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User Not Found id: {user_id}")
+                detail=f'User Not Found id: {user_id}')
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content=encoder(data
@@ -71,7 +68,8 @@ async def get_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONResp
 
 
 @router.post('/users', response_model=UserRequestDoc)
-async def create_user(inserted_user_data: UserDataRequest, _: bool = Depends(validate_admin), admin_email: str = Depends(current_admin_email)) -> JSONResponse:
+async def create_user(inserted_user_data: UserDataRequest, is_admin: bool = Depends(validate_admin),
+                      admin_email: str = Depends(current_admin_email)) -> JSONResponse:
     f"""
     `address_id`: UUID Foreign key , this value must exist in the ID in the Address table \n
     `user_name`: string , the username of the user which will be displayed on the forum.\n
@@ -82,8 +80,11 @@ async def create_user(inserted_user_data: UserDataRequest, _: bool = Depends(val
     `gender`: integer, must be {all_enum_to_str(Gender)}.\n
     `email`: Email, it must be a valid mail format. Example: example@gmail.com\n
     """
-
     with engine.begin() as conn:
+        if not is_admin:
+            raise HTTPException(
+                status_code=403, detail=('This stakeholder is not an Admin.'
+                                         + ' only admins can create users.'))
         result = conn.execute(users.insert().returning(users).values(
             **inserted_user_data.dict(),
             created_by_email=admin_email
@@ -98,7 +99,6 @@ async def delete_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONR
     """
     Deletes all the information for this user ID from the database.
     """
-
     with engine.connect() as conn:
         result = conn.execute(users.delete().where(
             users.c.id == user_id)).rowcount
@@ -111,11 +111,11 @@ async def delete_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONR
 
 
 @ router.patch('/users/{user_id}', response_model=UserRequestDoc)
-async def update_users(user_id: UUID, user_data: UserDataRequest, _: bool = Depends(validate_token)) -> JSONResponse:
+async def update_users(user_id: UUID, user_data: UserDataRequest,
+                       _: bool = Depends(validate_token)) -> JSONResponse:
     """
     Update user information that matches the inserted user ID.
     """
-
     with engine.begin() as conn:
         result = conn.execute(users.update().returning(users).where(
             users.c.id == user_id).values(
