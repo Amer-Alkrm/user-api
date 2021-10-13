@@ -6,6 +6,7 @@ from sqlalchemy import (
     Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import sessionmaker
 
 from enums import Degree, Gender, IntEnum, State
 
@@ -14,6 +15,7 @@ DATABASE_URL = f'postgresql://{getenv("DB_USER_NAME")}' +\
     f':{getenv("DB_PASSWORD")}@{getenv("DB_HOST")}:{getenv("DB_PORT")}/{getenv("DB_NAME")}'
 
 engine = sqlalchemy.create_engine(DATABASE_URL)
+Session = sessionmaker(engine)
 metadata = sqlalchemy.MetaData()
 metadata.bind = engine
 
