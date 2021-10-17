@@ -34,6 +34,11 @@ services:
     container_name: userapi
     depends_on:
       - users-postgres
+      - users-redis
+    environment:
+      #Redis Env
+      - REDIS_HOST=users-redis
+      - REDIS_PORT=6379
     command: bin/boot.sh
 
   users-postgres:
@@ -47,11 +52,28 @@ services:
     ports:
       - "5433:5432"
 
+  users-redis:
+    container_name: users-redis
+    image: redis:6.2.6-alpine
+    ports:
+      - "6380:6379"
+
+  users-redis-test:
+    container_name: users-redis-test
+    image: redis:6.2.6-alpine
+    ports:
+      - "6381:6379"
+
   user-api-test:
     extends: user-api-base
     container_name: user-api-pytest
     depends_on:
       - users-postgres
+      - users-redis-test
+    environment:
+      #Redis Env
+      - REDIS_HOST=users-redis-test
+      - REDIS_PORT=6379
     command: bin/unit_test.sh
 
   user-api-stakeholdersjob:

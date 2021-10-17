@@ -29,20 +29,26 @@ def test_get_all_users(mocker: MockerFixture, client: TestClient,
         assert response.json() == response_data
 
 
-@pytest.mark.parametrize('found', [(True), (False)])
-def test_get_user_by_gender(mocker: MockerFixture, client: TestClient,
-                            mock_response_user_data: dict, found: bool) -> None:
-    mock_connect = mocker.patch('routes.user.engine.connect')
+@pytest.mark.parametrize('redis_found', [(True), (False)])
+@pytest.mark.parametrize('db_found', [(True), (False)])
+def test_get_user_by_gender(clear_redis_cache, mocker: MockerFixture, client: TestClient,
+                            mock_response_user_data: dict, redis_found: bool,
+                            db_found: bool) -> None:
     response_data = [mock_response_user_data]
-    if found:
-        mock_connect.return_value.__enter__.return_value.execute.return_value = [
-            mock_response_user_data]
+    if redis_found:
+        mock_con = mocker.patch('redis.client.Redis.xrange')
+        mock_con.return_value = [[0, mock_response_user_data]]
     else:
-        mock_connect.return_value.__enter__.return_value.execute.return_value = []
-        response_data = []
+        mock_connect = mocker.patch('routes.user.engine.connect')
+        if db_found:
+            mock_connect.return_value.__enter__.return_value.execute.return_value = [
+                mock_response_user_data]
+        else:
+            mock_connect.return_value.__enter__.return_value.execute.return_value = []
+            response_data = []
 
     with client.get('/users/gender', params={'gender': 2}) as response:
-        assert mock_connect.called
+        assert mock_connect.called if not redis_found else mock_con.called
         assert response.status_code == HTTP_200_OK
         assert response.json() == response_data
 
@@ -74,6 +80,7 @@ def test_create_user(mocker: MockerFixture, client: TestClient,
                      mock_response_user_data: dict, is_admin: bool, status_code: status) -> None:
     if not is_admin:
         app.dependency_overrides[validate_admin] = mocking_auth_is_admin_false
+
     mock_connect = mocker.patch('routes.user.engine.begin')
     mock_connect.return_value.__enter__.return_value.execute.return_value\
         .first.return_value = mock_response_user_data
@@ -108,12 +115,12 @@ def test_delete_user(mocker: MockerFixture, client: TestClient,
                      found: bool, status_code: status) -> None:
     mock_connect = mocker.patch('routes.user.engine.connect')
     mock_connect.return_value.__enter__.return_value.execute.return_value.rowcount = found
-    response_data = {'data': f'{mock_user_id} User Deleted Successfully'} if found else {
-        'detail': f'User id: {mock_user_id} does not exist.'}
+    response_data = {'detail': f'User id: {mock_user_id} does not exist.'}
     with client.delete(f'/users/{mock_user_id}', json=mock_response_user_data) as response:
         assert mock_connect.called
         assert response.status_code == status_code
-        assert response.json() == response_data
+        if not found:
+            assert response.json() == response_data
 
 
 @ pytest.mark.parametrize('found, status_code', [(True, HTTP_200_OK), (False, HTTP_404_NOT_FOUND)])

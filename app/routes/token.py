@@ -23,9 +23,9 @@ async def login_for_access_token(form_data=Depends(OAuth2PasswordRequestForm)) -
     """
     with engine.connect() as conn:
         user_data = conn.execute(stakeholders.select().
-                                 where(stakeholders.c.email == dict(form_data)['username'])
+                                 where(stakeholders.c.email == form_data.username)
                                  .where(stakeholders.c.password
-                                 == dict(form_data)['password'])).first()
+                                 == form_data.password)).first()
 
     if not user_data:
         raise HTTPException(

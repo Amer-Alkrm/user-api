@@ -5,12 +5,14 @@ from fastapi import APIRouter, Depends, status
 from fastapi.encoders import jsonable_encoder as encoder
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
 from db import addresses, engine, users
 from docs import UserRequestDoc, UserResponseDoc
 from enums import Degree, Gender, all_enum_to_str
 from model import UserDataRequest, UserDataResponse
 from services.authentication import current_admin_email, validate_admin, validate_token
+from services.redis import redis_client, redis_decode_items, redis_send_item, redis_send_items
 
 router = APIRouter()
 
@@ -37,12 +39,20 @@ async def get_user_by_gender(gender: Gender, _: bool = Depends(validate_token)) 
     Returns all users information with the following gender.
     """
     with engine.connect() as conn:
-        user_data = conn.execute(
-            users.select().where(users.c.gender == gender))
+        user_key = f'gender_{Gender(gender).value}'
+        user_data = redis_client.xrange(user_key)
         if not user_data:
-            return JSONResponse(status_code=status.HTTP_200_OK,
-                                content=[])
+            user_items = conn.execute(
+                users.select().where(users.c.gender == gender))
+            if not user_items:
+                return JSONResponse(status_code=status.HTTP_200_OK,
+                                    content=[])
+            user_data = [data for data in user_items]
+            user_items = user_data
+            redis_send_items(user_key, user_items)
 
+        else:
+            user_data = redis_decode_items(user_data)
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content=encoder(
                                 UserDataResponse(**dict(data)) for data in user_data))
@@ -89,6 +99,8 @@ async def create_user(inserted_user_data: UserDataRequest, is_admin: bool = Depe
             **inserted_user_data.dict(),
             created_by_email=admin_email
         )).first()
+        user_key = f'gender_{Gender(inserted_user_data.gender).value}'
+        redis_send_item(user_key, result)
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content=encoder(UserDataResponse(
                                 **dict(result))))
@@ -106,8 +118,7 @@ async def delete_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONR
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f'User id: {user_id} does not exist.')
 
-        return JSONResponse(status_code=status.HTTP_204_NO_CONTENT,
-                            content={'data': f'{user_id} User Deleted Successfully'})
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @ router.patch('/users/{user_id}', response_model=UserRequestDoc)
