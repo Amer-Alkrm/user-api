@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.encoders import jsonable_encoder as encoder
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
 from db import addresses, engine
 from docs import AddressRequestDoc, AddressResponseDoc
@@ -77,8 +78,7 @@ async def delete_address(address_id: UUID, _: bool = Depends(validate_token)) ->
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f'Address id: {address_id} does not exist.')
 
-        return JSONResponse(status_code=status.HTTP_204_NO_CONTENT,
-                            content={'data': f'{address_id} Address Deleted Successfully'})
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @ router.patch('/addresses/{address_id}', response_model=AddressRequestDoc)

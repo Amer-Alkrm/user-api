@@ -6,11 +6,18 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 from main import app
+from pydantic import BaseModel
 
 from routes.token import OAuth2PasswordRequestForm
 from services.authentication import (
     current_admin_email, current_stakeholder, validate_admin, validate_token
 )
+from services.redis import redis_client
+
+
+class Form(BaseModel):
+    username: str
+    password: str
 
 
 def mocking_auth_token_validation() -> bool:
@@ -30,7 +37,7 @@ def mocking_auth_is_admin_false() -> bool:
 
 
 def mocking_req_form() -> dict:
-    return {'username': 'amer', 'password': 'string'}
+    return Form(**dict({'username': 'amer', 'password': 'string'}))
 
 
 def mocking_current_stackholder() -> dict:
@@ -93,6 +100,11 @@ def mock_response_address_data() -> dict:
 @ pytest.fixture()
 def mock_address_id() -> str:
     return str(uuid4())
+
+
+@ pytest.fixture()
+def clear_redis_cache() -> None:
+    redis_client.flushall()
 
 
 @pytest.fixture()

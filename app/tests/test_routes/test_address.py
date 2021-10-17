@@ -70,13 +70,13 @@ def test_delete_address(mocker: MockerFixture, client: TestClient,
     mock_connect = mocker.patch('routes.address.engine.connect')
     mock_connect.return_value.__enter__.return_value.execute.return_value.rowcount = found
 
-    response_data = {'data': f'{mock_address_id} Address Deleted Successfully'} if found else{
-        'detail': f'Address id: {mock_address_id} does not exist.'}
+    response_data = {'detail': f'Address id: {mock_address_id} does not exist.'}
 
     with client.delete(f'/addresses/{mock_address_id}') as response:
         assert mock_connect.called
         assert response.status_code == status_code
-        assert response.json() == response_data
+        if not found:
+            assert response.json() == response_data
 
 
 @ pytest.mark.parametrize('found, status_code', [(True, HTTP_200_OK), (False, HTTP_404_NOT_FOUND)])
