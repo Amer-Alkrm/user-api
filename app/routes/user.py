@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.encoders import jsonable_encoder as encoder
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
 from db import addresses, engine, users
 from docs import UserRequestDoc, UserResponseDoc
@@ -106,8 +107,7 @@ async def delete_user(user_id: UUID, _: bool = Depends(validate_token)) -> JSONR
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f'User id: {user_id} does not exist.')
 
-        return JSONResponse(status_code=status.HTTP_204_NO_CONTENT,
-                            content={'data': f'{user_id} User Deleted Successfully'})
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @ router.patch('/users/{user_id}', response_model=UserRequestDoc)

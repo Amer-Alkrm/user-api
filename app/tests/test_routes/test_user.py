@@ -108,12 +108,13 @@ def test_delete_user(mocker: MockerFixture, client: TestClient,
                      found: bool, status_code: status) -> None:
     mock_connect = mocker.patch('routes.user.engine.connect')
     mock_connect.return_value.__enter__.return_value.execute.return_value.rowcount = found
-    response_data = {'data': f'{mock_user_id} User Deleted Successfully'} if found else {
-        'detail': f'User id: {mock_user_id} does not exist.'}
+    response_data = {'detail': f'User id: {mock_user_id} does not exist.'}
+
     with client.delete(f'/users/{mock_user_id}', json=mock_response_user_data) as response:
         assert mock_connect.called
         assert response.status_code == status_code
-        assert response.json() == response_data
+        if not found:
+            assert response.json() == response_data
 
 
 @ pytest.mark.parametrize('found, status_code', [(True, HTTP_200_OK), (False, HTTP_404_NOT_FOUND)])
